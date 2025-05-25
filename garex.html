@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></AC-UVD> vcs garex 300</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e3f2fd;
+            padding: 20px;
+        }
+        h1 {
+            color: #1565c0;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #1565c0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #0d47a1;
+        }
+        #form-section {
+            margin-top: 20px;
+            background-color: #bbdefb;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>vcs garex 300</h1>
+
+    <button class="button" onclick="updateCounter()">Hisobni ko‘rsatish</button>
+    <button class="button" onclick="goBack()">Orqaga</button>
+
+    <div id="form-section">
+        <p><strong>Hozirgi raqam:</strong></p>
+        <p id="counter">Hisoblanmoqda...</p>
+        <p><strong>Bugungi sana:</strong></p>
+        <p id="today">Sanani olish...</p>
+    </div>
+
+    <script>
+        function updateCounter() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+
+            const monthKey = `ac uvd_saved_${year}_${month}`;
+            const prevMonthKey = `ac uvd_saved_${year}_${month - 1}`;
+
+            const todayText = now.toLocaleDateString('uz-UZ', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            });
+            document.getElementById('today').innerText = todayText;
+
+            let baseNumber = 12789; // Boshlang‘ich raqam
+            if (localStorage.getItem(prevMonthKey)) {
+                baseNumber = parseInt(localStorage.getItem(prevMonthKey), 10);
+            }
+
+            const startOfMonth = new Date(year, month, 1);
+            const diffMs = now - startOfMonth;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            const result = baseNumber + diffDays * 24;
+            document.getElementById('counter').innerText = result;
+
+            const lastDay = new Date(year, month + 1, 0);
+            if (now.toDateString() === lastDay.toDateString()) {
+                localStorage.setItem(monthKey, result);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'AC-UVD.HTML';
+        }
+    </script>
+</body>
+</html>
