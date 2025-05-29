@@ -1,90 +1,136 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title></AC-UVD> VRRS NEPTUNO</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e3f2fd;
-            padding: 20px;
-        }
-        h1 {
-            color: #1565c0;
-        }
-        .button {
-            padding: 10px 20px;
-            background-color: #1565c0;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .button:hover {
-            background-color: #0d47a1;
-        }
-        #form-section {
-            margin-top: 20px;
-            background-color: #bbdefb;
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 600px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>VRRS-NEPTUNO Hisobot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #eef7ff;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #64b5f6;
+      color: white;
+    }
+    input[type=number] {
+      width: 70px;
+      padding: 4px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-    <h1>VRRS NEPTUNO</h1>
 
-    <button class="button" onclick="updateCounter()">Hisobni ko‘rsatish</button>
-    <button class="button" onclick="goBack()">Orqaga</button>
+  <h2>VRRS-NEPTUNO Yillik Hisobot </h2>
 
-    <div id="form-section">
-        <p><strong>Hozirgi raqam:</strong></p>
-        <p id="counter">Hisoblanmoqda...</p>
-        <p><strong>Bugungi sana:</strong></p>
-        <p id="today">Sanani olish...</p>
-    </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Oy (Yil)</th>
+        <th>Boshlang‘ich soat</th>
+        <th>Umumiy soat</th>
+        <th>O‘chirilgan soat</th>
+        <th>Ishlagan soat</th>
+        <th>Qurilma nomi</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
-    <script>
-        function updateCounter() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
+<script>
+  const monthsUz = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
+  const startYear = 2025;
+  const endYear = 2035;
+  const startMonth = 3; // Aprel (0-based)
+  const qurilmaNomi = "VRRS-NEPTUNO";
+  const boshlangichSoat = 12765;
 
-            const monthKey = `ac uvd_saved_${year}_${month}`;
-            const prevMonthKey = `ac uvd_saved_${year}_${month - 1}`;
+  let rows = [];
 
-            const todayText = now.toLocaleDateString('uz-UZ', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-            });
-            document.getElementById('today').innerText = todayText;
+  function daysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
 
-            let baseNumber = 12789; // Boshlang‘ich raqam
-            if (localStorage.getItem(prevMonthKey)) {
-                baseNumber = parseInt(localStorage.getItem(prevMonthKey), 10);
-            }
+  function initRows() {
+    let currentStart = boshlangichSoat;
 
-            const startOfMonth = new Date(year, month, 1);
-            const diffMs = now - startOfMonth;
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    for (let y = startYear; y <= endYear; y++) {
+      for (let m = 0; m < 12; m++) {
+        if (y === startYear && m < startMonth) continue;
 
-            const result = baseNumber + diffDays * 24;
-            document.getElementById('counter').innerText = result;
+        const umumiy = daysInMonth(y, m) * 24;
+        rows.push({
+          oy: monthsUz[m] + " " + y,
+          boshlangich: currentStart,
+          umumiy: umumiy,
+          ochirilgan: 0,
+          ishlagan: umumiy
+        });
+        currentStart += umumiy;
+      }
+    }
+  }
 
-            const lastDay = new Date(year, month + 1, 0);
-            if (now.toDateString() === lastDay.toDateString()) {
-                localStorage.setItem(monthKey, result);
-            }
-        }
+  function renderTable() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+    let currentStart = boshlangichSoat;
 
-        function goBack() {
-            window.location.href = 'AC-UVD.HTML';
-        }
-    </script>
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const ishlagan = r.umumiy - r.ochirilgan;
+      r.ishlagan = ishlagan;
+      r.boshlangich = currentStart;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.oy}</td>
+        <td>${r.boshlangich}</td>
+        <td>${r.umumiy}</td>
+        <td>
+          <input type="number" min="0" max="${r.umumiy}" value="${r.ochirilgan}" data-index="${i}" oninput="updateRow(this)" />
+        </td>
+        <td>${ishlagan}</td>
+        <td>${qurilmaNomi}</td>
+      `;
+      tbody.appendChild(tr);
+
+      currentStart += ishlagan;
+    }
+  }
+
+  function updateRow(input) {
+    const index = parseInt(input.dataset.index);
+    const value = parseInt(input.value) || 0;
+
+    if (value >= 0 && value <= rows[index].umumiy) {
+      rows[index].ochirilgan = value;
+    } else {
+      rows[index].ochirilgan = 0;
+    }
+
+    renderTable(); // qayta chizish — boshlanish soatlarini yangilash uchun
+  }
+
+  window.onload = function () {
+    initRows();
+    renderTable();
+  };
+</script>
+<a href="ac-uvd.html" style="display:inline-block;margin-top:20px;padding:10px 20px;background:#64b5f6;color:white;text-decoration:none;border-radius:5px;">
+  Orqaga
+</a>
 </body>
 </html>
