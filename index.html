@@ -2,54 +2,187 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termiz Aeroporti</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
             background: url("aeraport.jpg") no-repeat center center fixed;
             background-size: cover;
         }
-        header {
-            background-color: rgba(0, 0, 255, 0.8);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .sidebar {
+
+        .login-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
             position: absolute;
-            top: 100px;
-            left: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 8px;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            padding: 20px;
+            text-align: center;
         }
-        .sidebar button {
-            width: 170px;
-            margin: 5px 0;
-            padding: 8px;
-            background-color: #3700ff;
+
+        .login-box input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+
+        .login-box button {
+            padding: 10px 25px;
+            font-size: 16px;
+            background-color: #0033cc;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
+
+        .login-box .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        header {
+            background-color: rgba(0, 0, 255, 0.8);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        header img {
+            height: 50px;
+        }
+
+        header h1 {
+            color: white;
+            font-size: 20px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .sidebar {
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar a {
+            width: 100%;
+            margin: 5px 0;
+            text-decoration: none;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3700ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
         .sidebar button:hover {
             background-color: #0056b3;
+        }
+
+        @media (min-width: 768px) {
+            header {
+                justify-content: flex-start;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .sidebar {
+                position: absolute;
+                top: 100px;
+                left: 20px;
+                max-width: none;
+                width: auto;
+                align-items: flex-start;
+            }
+
+            .sidebar button {
+                width: 170px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        «UZAEORONAVIGATION» – T.T.O FORMULYAR
-    </header>
 
-    <div class="sidebar">
-        <a href="AC-UVD.html"><button>AC UVD</button></a>
-        <a href="ВРЛ-Т.html"><button>ВРЛ-Т</button></a>
-        <a href="sdp.html"><button>SDP</button></a>
-        <a href="ats.html"><button>ATS</button></a>
+    <!-- Kirish qismi -->
+    <div class="login-box" id="loginBox">
+        <h2>🛡 Kirish uchun kodni kiriting</h2>
+        <input type="password" id="accessCode" placeholder="1111">
+        <button onclick="checkCode()">Kirish</button>
+        <div class="error" id="errorMsg"></div>
     </div>
+
+    <!-- Asosiy sahifa -->
+    <div id="mainContent" style="display: none;">
+        <header>
+            <img src="logo.png.png" alt="Logo">
+            <h1>«UZAEORONAVIGATION»</h1>
+        </header>
+
+        <div class="sidebar">
+            <a href="AC-UVD.html"><button>AC UVD</button></a>
+            <a href="ВРЛ-Т.html"><button>ВРЛ-Т</button></a>
+            <a href="sdp.html"><button>SDP</button></a>
+            <a href="ats.html"><button>ATS</button></a>
+            <a href="urtop.html"><button>Urtop</button></a>
+        </div>
+    </div>
+    <script>
+        function checkCode() {
+            const correctCode = "0311";
+            const userCode = document.getElementById("accessCode").value;
+
+            if (userCode === correctCode) {
+                localStorage.setItem("access", "true");
+                showMainContent();
+            } else {
+                document.getElementById("errorMsg").innerText = "❌ Noto‘g‘ri kod!";
+            }
+        }
+
+        function showMainContent() {
+            document.getElementById("loginBox").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
+        }
+
+        window.onload = function () {
+            if (localStorage.getItem("access") === "true") {
+                showMainContent();
+            } else {
+                document.getElementById("loginBox").style.display = "flex";
+                document.getElementById("mainContent").style.display = "none";
+            }
+        };
+    </script>
+
 </body>
 </html>
